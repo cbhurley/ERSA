@@ -1,0 +1,148 @@
+---
+title: "Exploratory Regression Shiny App"
+author: "Catherine B. Hurley"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The Exploratory Regression Shiny App (ERSA) consists of a collection of functions for displaying the
+results of a regression calculation, which are then packaged together as a shiny app function.
+
+To use ERSA first do
+```{r}
+library(ERSA)
+```
+Then construct a regression model of your choice.
+```{r eval=F}
+f <- lm(Fertility ~ . , data = swiss)
+exploreReg(f,swiss)
+```
+Here is a screen shot of the result:
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('swiss.png')
+```
+
+## The summary or drop1 display
+The app display consists of four panels. In the top left corner is a display of the model summary
+t-statistics, from
+```{r}
+f <- lm(Fertility ~ . , data = swiss)
+summary(f)
+```
+This display (Plot1) shows the magnitude of each t-statistic. The red dashed line
+shows the 5% significance level. There are a few other options for this display.
+The display may be switched to "CI", which shows parameter confidence intervals or
+"CI stdX" for confidence intervals in standard X units. If the model contains
+factors with more than two levels, then better choices are "F stat" or "Adj. SS".
+These give the summaries from the Sum of Sq or F stat columns of the drop1 results:
+```{r}
+drop1(f, test="F")
+```
+Clicking on this display removes the closest predictor, clicking again adds it 
+in. Once a predictor is added or dropped, this change is also reflected in the other
+ERSA displays.
+
+## The anova display
+The second panel in the top right shows the results of
+```{r}
+anova(f)
+```
+as Plot2. Each predictor of this output is represented by a coloured slice, whose height
+represents the sum of squares. These sums of squares depend on the order in
+which predictors were entered into the model fit. The second barchart (Plot3) represents
+the anova table obtained by reversing the predictor order.
+The dropdown menus give other choices. Forwards and backwards give the
+order of predictors as visited by the forwards and backwards selection algorithms.
+By choosing order "Random", a user can click on a slice to move it up one position,
+or double click to move it down. 
+
+## The Parallel coordinates plot display
+
+The lower part of the app has a parallel coordinate plot on the lower right,
+and a control panel on the left.
+The user can choose to show either (i) Variables (ii) Residuals and (iii) Hatvalues.
+Each axis is assigned to a variable, using the order from Plot1, Plot2 and Plot3.
+The residuals and hatvalues are obtained by leaving out one predictor at a time, if the
+selected order is Plot1, or by adding predictors in sequence if the order is Plot2 or Plot3.
+When residuals are plotted, the Difference option when selected shows the difference
+
+Specifically, let $e$ denote the vector of residuals from the full model and let
+$e^{-j}$ denote the residual vector from the fit using all  predictors except the $j$th.
+When residuals are selected, using order from Plot1,
+the PCP  shows $e^{-j}$ on the $j$th axis, or $e^{-j} - e$ when the Difference button is selected
+in Residual options. Let $e^{j}$ be the residuals from the model including the first $j$ predictors.
+When Residuals are selected, using order from Plot2 or Plot3, the PCP  shows $e^{j}$ on the $j$th axis, or $e^{j} - e^{j-1}$ when the Difference button is selected
+in Residual options.
+For any of the Plot orders, when the Absolute button is selected,
+either absolute residuals or absolute residual differences are plotted.
+
+Dragging a brush over the PCP axes will highlight cases and print information for the selected cases.
+Clicking on Remove Brushed will remove the highlighted cases from view. All regression models
+are recalculated and the displays are updated. Clicking the All Cases buttom
+will update all displays to use the complete dataset.
+Double clicking on the PCP itself will un-highlight all cases.
+
+## Individual plots
+
+There are functions to construct static plot versions of all the plots in the Exploratory
+Regression shiny app.
+
+For the Plot1 displays use
+```{r fig.width=4, fig.height=4, fig.align='center'}
+plottStats(f)
+cols <- termColours(f)
+plottStats(f, cols)
+```
+
+or 
+```{r eval=F}
+plotCIStats(f,cols)
+plotCIStats(f, cols,stdunits=TRUE)
+plotAnovaStats(f, cols,type="F")
+plotAnovaStats(f, cols,type="SS")
+```
+
+For the Plot2 displays use
+```{r fig.width=6, fig.height=4}
+fr <- revPredOrd(f, swiss)
+plotSeqSS(list(f,fr), cols,legend=TRUE)
+```
+
+Other orders are
+```{r eval=F}
+fselOrder(f)
+bselOrder(f)
+randomPredOrder(f)
+regsubsetsOrder(f)
+```
+
+To plot the PCP display of the data use:
+```{r fig.width=7,fig.height=4, fig.align='center'}
+pcpPlot(swiss, f)
+```
+Cases are automatically coloured by the magnitude of the response.
+
+
+To plot a PCP display of the residuals leaving out one predictor at
+a time use
+```{r fig.width=7,fig.height=4,fig.align='center'}
+pcpPlot(swiss, f, type="Residuals")
+```
+
+In residual and hatvalue plots cases are automatically coloured by the magnitude of full model residuals.
+Using the option sequential=T gives the residuals adding model terms in sequence,
+as they appear in the supplied fit f.
+
+Swapping "Residuals" by "Hatvalues" shows the fit hat values.
+```{r fig.width=7, fig.height=4,fig.align='center'}
+pcpPlot(swiss, f, type="Hatvalues", sequential=T)
+```
