@@ -178,6 +178,8 @@ regPCPdata <- function(fit,data=NULL, type="Variables", resDiff=F, absResid=F, c
    if (is.null(data)) data <- extractModelData(fit)
   if (type == "Variables"){
     d <- model.frame(fit)
+    if (ncol(d) != ncol(as.matrix(d)))
+        d <- get_all_vars(formula(fit), data)
     dg <- pcp_data(d, color=color)
     ylab<- "Model data"
   }

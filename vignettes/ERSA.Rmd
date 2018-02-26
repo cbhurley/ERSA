@@ -13,7 +13,7 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The Exploratory Regression Shiny App (ERSA) consists of a collection of functions for displaying the
+The Exploratory Regression Shiny App (ERSA) package consists of a collection of functions for displaying the
 results of a regression calculation, which are then packaged together as a shiny app function.
 
 To use ERSA first do
