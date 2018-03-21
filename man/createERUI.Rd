@@ -4,10 +4,7 @@
 \alias{createERUI}
 \title{Constructs UI for Exploratory Regression app}
 \usage{
-createERUI(fileOption = TRUE)
-}
-\arguments{
-\item{fileOption}{if TRUE, app includes option to select another model file}
+createERUI()
 }
 \value{
 the UI

@@ -5,7 +5,7 @@
 \title{A function to launch the Exploratory Regression Shiny App}
 \usage{
 exploreReg(ERmfull, ERdata = NULL, ERbarcols = RColorBrewer::brewer.pal(4,
-  "Set2"), npcpCols = 4, pvalOrder = F, fileOption = FALSE)
+  "Set2"), npcpCols = 4, pvalOrder = F)
 }
 \arguments{
 \item{ERmfull}{the lm fit to be explored}
@@ -18,8 +18,6 @@ Will be expanded via colorRampPalette if not the correct length.}
 \item{npcpCols}{number of colours for the PCP}
 
 \item{pvalOrder}{if TRUE, re-arranges predictors in order of p-value}
-
-\item{fileOption}{if TRUE, includes option to load another fit}
 }
 \value{
 the shiny server

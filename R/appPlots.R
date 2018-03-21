@@ -315,15 +315,16 @@ plotCIStats <- function(fit0, barcols=NULL,preds=NULL, alpha=.05, stdunits=FALSE
   anFit0 <- anova(fit0)
   ci <- broom::tidy(confint(fit0,level= 1-alpha))[-1,]
   if (stdunits){
-    f <- model.frame(fit0)
+    labs <- labels(terms(fit0))
+    f <- model.matrix(fit0)
     for (i in 1:nrow(ci)){
-      x <- f[[i]]
-      if (is.numeric(x)){
+      if (labs[i] %in% colnames(f)){
+        x <- f[, labs[i]]
         s <- sd(x)
         ci[i,2:3]<- ci[i,2:3]*s
       }
+      }
     }
-  }
 
 
   names(ci) <- c("term", "cil", "ciu")
