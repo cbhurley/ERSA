@@ -290,36 +290,55 @@ regsubsetsOrder <- function(m, d=NULL,refit=TRUE, collapse=TRUE){
 
 
 
-drop1_models <- function(model1, preds, data=NULL){
-  # model1 changed by single drop of predictor
-  if (is.null(data)) data <- extractModelData(model1)
-  preds1 <- attr(terms(model1), "term.labels")
-  # make sure model1 uses data
-  model1 <- refitModel(model1, preds1, data)
-  mfits <- list(model1)
+#' Constructs a list of fits by dropping predictors from the supplied model
+#'
+#' @param model A linear model
+#' @param preds Predictors to be dropped
+#' @param data The dataset (optional)
+#'
+#' @return A list of linear fits
+#' @export
+#'
+
+drop1_models <- function(model, preds, data=NULL){
+  # model changed by single drop of predictor
+  if (is.null(data)) data <- extractModelData(model)
+  preds1 <- attr(terms(model), "term.labels")
+  # make sure model uses data
+  model <- refitModel(model, preds1, data)
+  mfits <- list(model)
 
    for (i in 1:length(preds)) {
     k <- match(preds[i], preds1)
-    mfits[[i+1]] <- refitModel(model1, preds1[-k],data)
+    mfits[[i+1]] <- refitModel(model, preds1[-k],data)
   }
   names(mfits)	 <- c("Start", preds)
   mfits
 }
 
 
+#' Constructs a list of fits by adding predictors sequentially
+#'
+#' @param model A linear model
+#' @param preds Predictors to be added sequentially
+#' @param data The dataset (optional)
+#'
+#' @return A list of linear fits
+#' @export
+#'
 
-add1_models <- function(model1, preds, data=NULL){
-  # model1 changed by sequential add of predictor
-  if (is.null(data)) data <- extractModelData(model1)
-  preds1 <- attr(terms(model1), "term.labels")
-  # make sure model1 uses data
-  model1 <- refitModel(model1, preds1, data)
+add1_models <- function(model, preds, data=NULL){
+  # model changed by sequential add of predictor
+  if (is.null(data)) data <- extractModelData(model)
+  preds1 <- attr(terms(model), "term.labels")
+  # make sure model uses data
+  model <- refitModel(model, preds1, data)
 
-  mfits <- list(model1)
+  mfits <- list(model)
 
   for (i in 1:length(preds)) {
     preds1 <- c(preds1, preds[i])
-    mfits[[i+1]] <- refitModel(model1, preds1,data)
+    mfits[[i+1]] <- refitModel(model, preds1,data)
   }
   names(mfits)	 <- c("Start", preds)
   mfits

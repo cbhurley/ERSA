@@ -3,7 +3,6 @@
 
 #' Constructs UI for Exploratory Regression app
 #'
-#' @param fileOption if TRUE, app includes option to select another model file
 #'
 #' @return the UI
 createERUI <- function(){
