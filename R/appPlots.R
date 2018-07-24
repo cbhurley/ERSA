@@ -13,6 +13,7 @@
 #' @import grDevices
 #' @import methods
 #' @import stats
+#' @import RColorBrewer
 NULL
 
 
@@ -313,7 +314,7 @@ termColours <- function(f, pal=RColorBrewer::brewer.pal(4, "Set2")){
 #' @examples plotCIStats(lm(mpg ~ wt+hp+disp, data=mtcars))
 plotCIStats <- function(fit0, barcols=NULL,preds=NULL, alpha=.05, stdunits=FALSE, width=.3){
   anFit0 <- anova(fit0)
-  ci <- broom::tidy(confint(fit0,level= 1-alpha))[-1,]
+  ci <- confint(fit0,level= 1-alpha)[-1,]
   if (stdunits){
     labs <- labels(terms(fit0))
     f <- model.matrix(fit0)
@@ -321,12 +322,12 @@ plotCIStats <- function(fit0, barcols=NULL,preds=NULL, alpha=.05, stdunits=FALSE
       if (labs[i] %in% colnames(f)){
         x <- f[, labs[i]]
         s <- sd(x)
-        ci[i,2:3]<- ci[i,2:3]*s
+        ci[i,]<- ci[i,]*s
       }
       }
     }
 
-
+  ci <- data.frame(term=rownames(ci), ci)
   names(ci) <- c("term", "cil", "ciu")
   df <- anFit0[-nrow(anFit0),]$Df
   if (any(df != 1)){

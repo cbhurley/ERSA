@@ -221,8 +221,6 @@ whichPredA <- function(m,y){
 
 
 bind_model_tables <- function(models, summary=identity,...){
-	# mseq <-  models %>% dplyr::map(summary) %>% dplyr::map(broom::tidy,...)	%>% dplyr::bind_rows(.id="model")
-
 	models1 <- purrr::map(models, summary)
 	models1 <- purrr::map(models1, broom::tidy,...)
 	mseq <- dplyr::bind_rows(.id="model", models1)
