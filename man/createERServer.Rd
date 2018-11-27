@@ -4,8 +4,9 @@
 \alias{createERServer}
 \title{A function which returns a shiny server for Exploratory Regression}
 \usage{
-createERServer(ERfit, ERdata = NULL, ERbarcols = RColorBrewer::brewer.pal(4,
-  "Set2"), ERnpcpCols = 4, pvalOrder = F)
+createERServer(ERfit, ERdata = NULL,
+  ERbarcols = RColorBrewer::brewer.pal(4, "Set2"), ERnpcpCols = 4,
+  pvalOrder = F)
 }
 \arguments{
 \item{ERfit}{the lm fit to be explored}

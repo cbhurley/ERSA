@@ -4,7 +4,10 @@
 \alias{createERUI}
 \title{Constructs UI for Exploratory Regression app}
 \usage{
-createERUI()
+createERUI(tablesOnly = F)
+}
+\arguments{
+\item{tablesOnly}{if TRUE, shows Plots 1-3 only.}
 }
 \value{
 the UI

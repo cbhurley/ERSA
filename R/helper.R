@@ -369,6 +369,8 @@ checkERModel <- function(m){
 
 #' @param npcpCols number of colours for the PCP
 #' @param pvalOrder if TRUE, re-arranges predictors in order of p-value
+#' @param tablesOnly if TRUE, shows Plots 1-3 only.
+#' @param displayHeight supply a value for the display height
 #' @return the shiny server
 #' @export
 #'
@@ -377,14 +379,17 @@ checkERModel <- function(m){
 #' \dontrun{exploreReg(f)}
 #'
 exploreReg <- function(ERmfull,ERdata=NULL, ERbarcols=RColorBrewer::brewer.pal(4, "Set2"),
-                       npcpCols = 4,pvalOrder=F) {
+                       npcpCols = 4,pvalOrder=F, tablesOnly=F, displayHeight=NULL) {
   if (!checkERModel(ERmfull))
     stop("ERmfull must be an unweighted lm")
-  ui <- createERUI()
+  ui <- createERUI(tablesOnly=tablesOnly)
   if (is.null(ERdata)) ERdata <- extractModelData(ERmfull)
  server <- createERServer(ERmfull, ERdata,ERbarcols, npcpCols,pvalOrder)
+ if (is.null(displayHeight))
+   displayHeight <- if (tablesOnly) 500 else 900
+
   shiny::shinyApp(ui, server,options=list(
-    width="100%", height=900
+    width="100%", height=displayHeight
   ))
 }
 

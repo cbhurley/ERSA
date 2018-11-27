@@ -1,4 +1,90 @@
 
+
+
+
+tlimits <- function(m, d=NULL) {
+  if (is.null(d)) d <- ERSA:::extractModelData(m)
+  m0 <- refitModel(m, NULL, d)
+  preds <- attr(terms(m), "term.labels")
+  an <- anova(m)
+  df <- an[-nrow(an),]$Df
+  preds <- preds[df ==1]
+  fits <- sapply(preds,function(p) {
+    f <- update(m0, paste0("~ . + ", p),data=d)
+    summary(f)$coefficients[2,3]
+  })
+  r <- range(fits)
+  c(min(r[1],-3), max(r[2],3))*1.05
+}
+
+flimits <- function(m, d=NULL) {
+  if (is.null(d)) d <- ERSA:::extractModelData(m)
+  m0 <- refitModel(m, NULL, d)
+  preds <- attr(terms(m), "term.labels")
+  fits <- sapply(preds,function(p) {
+    f <- update(m0, paste0("~ . + ", p),data=d)
+    anova(m0,f)$F[2]
+  })
+  r <- max(fits)
+  c(0, max(r,9)*1.05)
+}
+
+
+slimits <- function(m, d=NULL) {
+  if (is.null(d)) d <- ERSA:::extractModelData(m)
+  m0 <- refitModel(m, NULL, d)
+  preds <- attr(terms(m), "term.labels")
+  fits <- sapply(preds,function(p) {
+    f <- update(m0, paste0("~ . + ", p),data=d)
+    anova(m0,f)[2,4]
+  })
+  r <- max(fits)
+  c(0, r*1.05)
+}
+
+cilimits <- function(m, d=NULL) {
+  if (is.null(d)) d <- ERSA:::extractModelData(m)
+  m0 <- ERSA:::refitModel(m, NULL, d)
+  preds <- attr(terms(m), "term.labels")
+  an <- anova(m)
+  df <- an[-nrow(an),]$Df
+  preds <- preds[df ==1]
+  fits <- sapply(preds,function(p) {
+    f <- update(m0, paste0("~ . + ", p),data=d)
+    confint(f)[2,]
+  })
+
+  r <- c(min(fits[1,]),max(fits[2,]))
+  fudge <- ifelse(r < 0,.95,1.05)
+  r*fudge
+}
+
+cislimits <- function(m, d=NULL) {
+  if (is.null(d)) d <- ERSA:::extractModelData(m)
+  m0 <- ERSA:::refitModel(m, NULL, d)
+  preds <- attr(terms(m), "term.labels")
+  an <- anova(m)
+  df <- an[-nrow(an),]$Df
+  preds <- preds[df ==1]
+  ci <- sapply(preds,function(p) {
+    f <- update(m0, paste0("~ . + ", p),data=d)
+    confint(f)[2,]
+  })
+  mmat <- model.matrix(m)
+  for (i in 1:nrow(ci)){
+    if (preds[i] %in% colnames(mmat)){
+      x <- mmat[, preds[i]]
+      s <- sd(x)
+      ci[i,]<- ci[i,]*s
+    }
+  }
+  r <- c(min(ci[1,]),max(ci[2,]))
+  fudge <- ifelse(r < 0,.95,1.05)
+  r*fudge
+}
+
+
+
 #' A function which returns a shiny server for Exploratory Regression
 #'
 #' @param ERfit the lm fit to be explored
@@ -10,6 +96,7 @@
 #'
 #' @return a function
 #' @import shiny
+#'
 
 createERServer <- function(ERfit,ERdata=NULL,ERbarcols=RColorBrewer::brewer.pal(4, "Set2"),ERnpcpCols=4,  pvalOrder=F){
 
@@ -22,6 +109,8 @@ function(input, output,session) {
   # npcpCols <- ERnpcpCols
 
   ERtermcols <- NULL
+  plotAlims <-  NULL
+
 
   initER <- function(){
     if (pvalOrder)
@@ -118,13 +207,14 @@ function(input, output,session) {
     change <- NULL
     if  (pred %in% terms0){
       if (length(terms0)> 1){
-        #print( paste0("Removing term ", pred))
+        # print( paste0("Removing term ", pred))
         change <- "Remove"
         terms0 <- terms0[- match(pred, terms0)]
       }
     }
     else {
       change <- "Add"
+      # print( paste0("Adding term ", pred))
       terms0 <- c(terms0, pred)
       terms0 <- preds[sort(match(terms0, preds))]
     }
@@ -248,25 +338,101 @@ function(input, output,session) {
 
 
   output$barPlotA <- renderPlot({
-    if (input$stat == "Adj. SS"){
-     plotAnovaStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), type="SS")+
+
+     if (input$stat == "Adj. SS"){
+     p <- plotAnovaStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), type="SS")+
      xlab("")+ ylab("")
+     if (!input$fixedscales) p
+     else {
+       plimsx <- as.list(ggplot_build(p)$layout)$panel_params[[1]]$x.range
+
+       if (is.null(plotAlims$sstat$x.range)){
+         lims <- slimits(rv$fit0)
+         plotAlims$sstat$x.range <<- c(min(plimsx[1], lims[1]), max(plimsx[2], lims[2]))
+         plotAlims$sstat$y.range <<- as.list(ggplot_build(p)$layout)$panel_params[[1]]$y.range
+       }
+       p$coordinates$default<- TRUE
+       p+   coord_flip(ylim=plotAlims$sstat$x.range, xlim=plotAlims$sstat$y.range, expand=F)
+     }
     }
     else if (input$stat == "F stat"){
-      plotAnovaStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), type="F")+
+      p <- plotAnovaStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), type="F")+
         xlab("")+ ylab("")
+
+      if (!input$fixedscales) p
+      else {
+        plimsx <- as.list(ggplot_build(p)$layout)$panel_params[[1]]$x.range
+
+        if (is.null(plotAlims$fstat$x.range)){
+          lims <- flimits(rv$fit0)
+          plotAlims$fstat$x.range <<- c(min(plimsx[1], lims[1]), max(plimsx[2], lims[2]))
+          plotAlims$fstat$y.range <<- as.list(ggplot_build(p)$layout)$panel_params[[1]]$y.range
+        }
+       p$coordinates$default<- TRUE
+        p+   coord_flip(ylim=plotAlims$fstat$x.range, xlim=plotAlims$fstat$y.range, expand=F)
+      }
     }
+
     else if (input$stat == "t stat") {
-       plottStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha))+
+      p <-  plottStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha))+
         xlab("")+ ylab("")
+      if (!input$fixedscales) p
+      else {
+      plimsx <- as.list(ggplot_build(p)$layout)$panel_params[[1]]$x.range
+
+      if (is.null(plotAlims$tstat$x.range)){
+        lims <- tlimits(rv$fit0)
+        plotAlims$tstat$x.range <<- c(min(plimsx[1], lims[1]), max(plimsx[2], lims[2]))
+        plotAlims$tstat$y.range <<- as.list(ggplot_build(p)$layout)$panel_params[[1]]$y.range
+      }
+
+
+      # using coord_flip a second time generates a warning
+      # can get rig of with suppressMessages(print but that affects coordinate system
+      # next line gets rid of message
+      p$coordinates$default<- TRUE
+      # print("plot")
+      # print(plimsx)
+      # print("fixed")
+      # print(plotAlims$tstat$x.range)
+      # print("---")
+      # if (plimsx[1] < plotAlims$tstat$x.range[1] | plimsx[2] > plotAlims$tstat$x.range[2])
+      #   print("t stat plot is clipped")
+      p+   coord_flip(ylim=plotAlims$tstat$x.range, xlim=plotAlims$tstat$y.range, expand=F)
+
+      }
     }
     else if (input$stat == "CI") {
-      plotCIStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), F)+
+      p <- plotCIStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), F)+
         xlab("")+ ylab("")
+      if (!input$fixedscales) p
+      else {
+        plimsx <- as.list(ggplot_build(p)$layout)$panel_params[[1]]$x.range
+
+        if (is.null(plotAlims$cistat$x.range)){
+          lims <- cilimits(rv$fit0)
+          plotAlims$cistat$x.range <<- c(min(plimsx[1], lims[1]), max(plimsx[2], lims[2]))
+          plotAlims$cistat$y.range <<- as.list(ggplot_build(p)$layout)$panel_params[[1]]$y.range
+        }
+        # p$coordinates$default<- TRUE
+        p+   coord_cartesian(xlim=plotAlims$cistat$x.range, ylim=plotAlims$cistat$y.range, expand=F)
+      }
     }
     else if (input$stat == "CI stdX") {
-      plotCIStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), T)+
+      p <- plotCIStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), T)+
         xlab("")+ ylab("")
+      if (!input$fixedscales) p
+      else {
+        plimsx <- as.list(ggplot_build(p)$layout)$panel_params[[1]]$x.range
+
+        if (is.null(plotAlims$cistdstat$x.range)){
+          lims <- cislimits(rv$fit0)
+          plotAlims$cistdstat$x.range <<- c(min(plimsx[1], lims[1]), max(plimsx[2], lims[2]))
+          plotAlims$cistdstat$y.range <<- as.list(ggplot_build(p)$layout)$panel_params[[1]]$y.range
+        }
+        # p$coordinates$default<- TRUE
+        p+   coord_cartesian(xlim=plotAlims$cistdstat$x.range, ylim=plotAlims$cistdstat$y.range, expand=F)
+      }
     }
 
   })

@@ -2,10 +2,10 @@
 
 
 #' Constructs UI for Exploratory Regression app
-#'
+#' @param tablesOnly if TRUE, shows Plots 1-3 only.
 #'
 #' @return the UI
-createERUI <- function(){
+createERUI <- function(tablesOnly=F){
   fluidPage(
      h3("Exploring regression models"),
     #  tags$style(type = "text/css",
@@ -41,11 +41,14 @@ createERUI <- function(){
     fluidRow(column(4,plotOutput("barPlotA", click="plot_clickA", height="300px")),
              column(6,offset=1,plotOutput("barPlotS",click = "plot_clickS",
                                  dblclick = "plot_dblclickS",height="300px", width = "90%"))),
-    fluidRow(column(1,offset=1, actionButton(inputId="all_terms", label="Use all terms")),
-             column(8, offset=2,verbatimTextOutput("info"))),
+    fluidRow(column(1,offset=0, actionButton(inputId="all_terms", label="Use all terms")),
+             column(2,offset=1, checkboxInput(inputId="fixedscales", label="Fixed scales", value=TRUE)),
+             column(7, offset=1,verbatimTextOutput("info"))),
     tags$head(tags$style("#info{font-size: 9px;}")),
     tags$br(),
-    sidebarLayout(sidebarPanel(
+    if (!tablesOnly) {
+
+     sidebarLayout(sidebarPanel(
                                 # selectInput(inputId = "PCP",
                                 #            label = "Plot what?",
                                 #            choices = list("Variables","Residuals", "Hatvalues"),
@@ -71,23 +74,12 @@ createERUI <- function(){
                                actionButton(inputId="restore_all", label="All cases")),
 
                   mainPanel(plotOutput("pcp", dblclick = "pcp_dblclick", height="350px",
-                                       brush = brushOpts(id = "plot_brush", resetOnNew = T)))),
-
-    fluidRow(column(8,offset=4,verbatimTextOutput("infoBrushed"))),
+                                       brush = brushOpts(id = "plot_brush", resetOnNew = T))))
+      },
+     fluidRow(if (!tablesOnly) column(8,offset=4,verbatimTextOutput("infoBrushed"))),
     tags$head(tags$style("#infoBrushed{font-size: 9px;}"))
-    # tags$head(tags$style("#remove_brushed{font-size: 12px;}")),
-    # tags$head(tags$style("#restore_all{font-size: 12px;}")),
-    #
+     )
 
-  # fluidRow(
-  #   column(4, offset=0,fileInput("sourceF", "Choose source file with linear model", accept="R")))
-
-  # if (fileOption)
-  #   fluidRow(
-  #     column(4, offset=0,fileInput("sourceF", "Choose source file with linear model", accept="R")))
-
-
-    )
 }
 
 

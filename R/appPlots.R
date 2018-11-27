@@ -114,12 +114,13 @@ plottStats <- function(fit0, barcols=NULL,preds=NULL, alpha=.05, width=.3){
   if (! is.null(barcols))
     p0 <- p0 + scale_fill_manual(values = barcols, limits = preds)
 
-  p0 +
+  p0 <- p0 +
     geom_segment(aes_string(x = "termnum1", y = "siglevel", xend = "termnum2", yend = "siglevel"), color = "darkred",
                  linetype = "dashed")+
     geom_segment(aes_string(x = "termnum1", y = "-siglevel", xend = "termnum2", yend = "-siglevel"), color = "darkred",
                  linetype = "dashed") +
     geom_hline(yintercept=0, color="grey30", size=1)
+  p0
 
 }
 
@@ -314,7 +315,7 @@ termColours <- function(f, pal=RColorBrewer::brewer.pal(4, "Set2")){
 #' @examples plotCIStats(lm(mpg ~ wt+hp+disp, data=mtcars))
 plotCIStats <- function(fit0, barcols=NULL,preds=NULL, alpha=.05, stdunits=FALSE, width=.3){
   anFit0 <- anova(fit0)
-  ci <- confint(fit0,level= 1-alpha)[-1,]
+  ci <- confint(fit0,level= 1-alpha)[-1,,drop=F]
   if (stdunits){
     labs <- labels(terms(fit0))
     f <- model.matrix(fit0)

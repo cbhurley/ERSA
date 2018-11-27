@@ -10,7 +10,7 @@ License: GPL (>= 2.0)
 Encoding: UTF-8
 LazyData: true
 Imports: shiny, RColorBrewer, ggplot2, car, leaps, broom, dplyr,  tidyr, purrr, combinat,stats, methods
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
