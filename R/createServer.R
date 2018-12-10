@@ -483,7 +483,6 @@ function(input, output,session) {
   output$infoBrushed <- renderPrint({
     sel <- rd$sel
     #d <- rd$mdata
-
        if (!is.null(sel) && (nrow(sel) !=0)){
          d <- get_all_vars(rv$fit0,rd$mdata)
       # del <- rownames(d) %in% sel$case

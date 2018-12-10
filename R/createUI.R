@@ -76,7 +76,8 @@ createERUI <- function(tablesOnly=F){
                   mainPanel(plotOutput("pcp", dblclick = "pcp_dblclick", height="350px",
                                        brush = brushOpts(id = "plot_brush", resetOnNew = T))))
       },
-     fluidRow(if (!tablesOnly) column(8,offset=4,verbatimTextOutput("infoBrushed"))),
+
+    if (!tablesOnly) fluidRow( column(8,offset=4,verbatimTextOutput("infoBrushed"))),
     tags$head(tags$style("#infoBrushed{font-size: 9px;}"))
      )
 

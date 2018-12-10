@@ -386,8 +386,7 @@ exploreReg <- function(ERmfull,ERdata=NULL, ERbarcols=RColorBrewer::brewer.pal(4
   if (is.null(ERdata)) ERdata <- extractModelData(ERmfull)
  server <- createERServer(ERmfull, ERdata,ERbarcols, npcpCols,pvalOrder)
  if (is.null(displayHeight))
-   displayHeight <- if (tablesOnly) 500 else 900
-
+   displayHeight <- if (tablesOnly) 500 else 950
   shiny::shinyApp(ui, server,options=list(
     width="100%", height=displayHeight
   ))
