@@ -371,6 +371,7 @@ checkERModel <- function(m){
 #' @param pvalOrder if TRUE, re-arranges predictors in order of p-value
 #' @param tablesOnly if TRUE, shows Plots 1-3 only.
 #' @param displayHeight supply a value for the display height
+#' @param viewer. Defaults to "dialogViewer". May be "paneViewer" or "browserViewer"
 #' @return the result
 #' @export
 #'
@@ -379,7 +380,8 @@ checkERModel <- function(m){
 #' \dontrun{exploreReg(f)}
 #'
 exploreReg <- function(ERmfull,ERdata=NULL, ERbarcols=RColorBrewer::brewer.pal(4, "Set2"),
-                       npcpCols = 4,pvalOrder=F, tablesOnly=F, displayHeight=NULL) {
+                       npcpCols = 4,pvalOrder=F, tablesOnly=F, displayHeight=NULL,
+                       viewer="dialogViewer") {
   if (!checkERModel(ERmfull))
     stop("ERmfull must be an unweighted lm")
   ui <- createERUI(tablesOnly=tablesOnly)
@@ -393,11 +395,11 @@ exploreReg <- function(ERmfull,ERdata=NULL, ERbarcols=RColorBrewer::brewer.pal(4
   #  width="100%", height=displayHeight))
 
   # runGadget(ui, server,  viewer = browserViewer())
-
+    if (viewer=="dialogViewer")
     runGadget(ui, server, viewer = dialogViewer("Explore Regression",width=700,height=displayHeight))
-   # runGadget(ui, server, viewer = paneViewer())
-
-
+    else if (viewer=="paneViewer")
+      runGadget(ui, server, viewer = paneViewer())
+    else runGadget(ui, server, viewer = browserViewer())
 
 }
 
