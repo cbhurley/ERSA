@@ -395,12 +395,15 @@ exploreReg <- function(ERmfull,ERdata=NULL, ERbarcols=RColorBrewer::brewer.pal(4
   #  width="100%", height=displayHeight))
 
   # runGadget(ui, server,  viewer = browserViewer())
+    if (interactive()){
     if (viewer=="dialogViewer")
     runGadget(ui, server, viewer = dialogViewer("Explore Regression",width=700,height=displayHeight))
     else if (viewer=="paneViewer")
       runGadget(ui, server, viewer = paneViewer())
     else runGadget(ui, server, viewer = browserViewer())
-
+    }
+ else shiny::shinyApp(ui, server,options=list(
+   width="100%", height=displayHeight))
 }
 
 

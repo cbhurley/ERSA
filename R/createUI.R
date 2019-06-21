@@ -88,7 +88,7 @@ createERUI <- function(tablesOnly=F){
   topflex <- c(3,3)
   if (tablesOnly) topflex <- c(3,NA)
   miniPage(
-    gadgetTitleBar("Exploring regression models"),
+    if (interactive()) gadgetTitleBar("Explore regression models"),
     tags$style(type = "text/css",
                "label { font-size: 11px; }"
     ),
