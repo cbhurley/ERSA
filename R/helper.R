@@ -371,7 +371,7 @@ checkERModel <- function(m){
 #' @param pvalOrder if TRUE, re-arranges predictors in order of p-value
 #' @param tablesOnly if TRUE, shows Plots 1-3 only.
 #' @param displayHeight supply a value for the display height
-#' @return the shiny server
+#' @return the result
 #' @export
 #'
 #' @examples
@@ -384,13 +384,39 @@ exploreReg <- function(ERmfull,ERdata=NULL, ERbarcols=RColorBrewer::brewer.pal(4
     stop("ERmfull must be an unweighted lm")
   ui <- createERUI(tablesOnly=tablesOnly)
   if (is.null(ERdata)) ERdata <- extractModelData(ERmfull)
+
  server <- createERServer(ERmfull, ERdata,ERbarcols, npcpCols,pvalOrder)
+
  if (is.null(displayHeight))
-   displayHeight <- if (tablesOnly) 500 else 950
-  shiny::shinyApp(ui, server,options=list(
-    width="100%", height=displayHeight
-  ))
+   displayHeight <- if (tablesOnly) 400 else 700
+  # shiny::shinyApp(ui, server,options=list(
+  #  width="100%", height=displayHeight))
+
+  # runGadget(ui, server,  viewer = browserViewer())
+
+    runGadget(ui, server, viewer = dialogViewer("Explore Regression",width=700,height=displayHeight))
+   # runGadget(ui, server, viewer = paneViewer())
+
+
+
 }
 
+
+exploreReg1 <- function(ERmfull,ERdata=NULL, ERbarcols=RColorBrewer::brewer.pal(4, "Set2"),
+                       npcpCols = 4,pvalOrder=F, tablesOnly=F, displayHeight=NULL) {
+  if (!checkERModel(ERmfull))
+    stop("ERmfull must be an unweighted lm")
+  ui <- createERUIa(tablesOnly=tablesOnly)
+  if (is.null(ERdata)) ERdata <- extractModelData(ERmfull)
+
+  server <- createERServer(ERmfull, ERdata,ERbarcols, npcpCols,pvalOrder)
+
+  if (is.null(displayHeight))
+    displayHeight <- if (tablesOnly) 500 else 950
+  shiny::shinyApp(ui, server,options=list(
+    width="100%", height=displayHeight))
+  # runGadget(ui, server, viewer = dialogViewer("Explore Regression",width=700,height=700))
+
+}
 
 

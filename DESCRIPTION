@@ -2,15 +2,15 @@ Package: ERSA
 Type: Package
 Title: Exploratory Regression 'Shiny' App
 Version: 0.1.2
-Date: 2018-11-27
+Date: 2019-6-21
 Author: Catherine B. Hurley
 Maintainer: Catherine B. Hurley <catherine.hurley@mu.ie>
 Description: Constructs a 'shiny' app function with interactive displays for summary and analysis of variance regression tables, and parallel coordinate plots of data and residuals.
 License: GPL (>= 2.0)
 Encoding: UTF-8
 LazyData: true
-Imports: shiny, RColorBrewer, ggplot2, car, leaps, broom, dplyr,  tidyr, purrr, combinat,stats, methods
-RoxygenNote: 6.1.0
+Imports: shiny, miniUI,RColorBrewer, ggplot2, car, leaps, broom, dplyr,  tidyr, purrr, combinat,stats, methods
+RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr

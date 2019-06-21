@@ -96,6 +96,7 @@ cislimits <- function(m, d=NULL) {
 #'
 #' @return a function
 #' @import shiny
+#' @import  miniUI
 #'
 
 createERServer <- function(ERfit,ERdata=NULL,ERbarcols=RColorBrewer::brewer.pal(4, "Set2"),ERnpcpCols=4,  pvalOrder=F){
@@ -265,6 +266,15 @@ function(input, output,session) {
     }
   })
 
+  observeEvent(input$plot_dblclickA, {
+    terms0 <- attr(terms(ERfit), "term.labels")
+
+    rv$fit0 <-refitModel(rv$fit0, terms0, rd$mdata)
+    rv$fit1 <- updateFit(rv$fit0, input$order1)
+    rv$fit2 <- updateFit(rv$fit0, input$order2)
+  }
+  )
+
   observeEvent(input$plot_dblclickS, {
     click <- input$plot_dblclickS
     if (click$x > 1.75 & click$x < 2.25 & input$order2=="Interact") {
@@ -299,6 +309,7 @@ function(input, output,session) {
   })
 
   observeEvent(input$remove_brushed, {
+
     sel <- rd$sel
     if (! is.null(sel)){
       del <- rownames(rd$mdata) %in% sel$case
@@ -332,17 +343,19 @@ function(input, output,session) {
     #     del <- rownames(rd$mdata) %in% sel$case
     #  }
 
+
   })
 
 
 
 
   output$barPlotA <- renderPlot({
-
+     fixedscales <- input$fixedscales
+     fixedscales <- "diff" %in% input$Res
      if (input$stat == "Adj. SS"){
      p <- plotAnovaStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), type="SS")+
      xlab("")+ ylab("")
-     if (!input$fixedscales) p
+     if (!fixedscales) p
      else {
        plimsx <- as.list(ggplot_build(p)$layout)$panel_params[[1]]$x.range
 
@@ -359,7 +372,8 @@ function(input, output,session) {
       p <- plotAnovaStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), type="F")+
         xlab("")+ ylab("")
 
-      if (!input$fixedscales) p
+
+      if (!fixedscales) p
       else {
         plimsx <- as.list(ggplot_build(p)$layout)$panel_params[[1]]$x.range
 
@@ -376,7 +390,8 @@ function(input, output,session) {
     else if (input$stat == "t stat") {
       p <-  plottStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha))+
         xlab("")+ ylab("")
-      if (!input$fixedscales) p
+
+       if (!fixedscales) p
       else {
       plimsx <- as.list(ggplot_build(p)$layout)$panel_params[[1]]$x.range
 
@@ -405,7 +420,8 @@ function(input, output,session) {
     else if (input$stat == "CI") {
       p <- plotCIStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), F)+
         xlab("")+ ylab("")
-      if (!input$fixedscales) p
+
+      if (!fixedscales) p
       else {
         plimsx <- as.list(ggplot_build(p)$layout)$panel_params[[1]]$x.range
 
@@ -421,7 +437,8 @@ function(input, output,session) {
     else if (input$stat == "CI stdX") {
       p <- plotCIStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), T)+
         xlab("")+ ylab("")
-      if (!input$fixedscales) p
+
+      if (!fixedscales) p
       else {
         plimsx <- as.list(ggplot_build(p)$layout)$panel_params[[1]]$x.range
 
@@ -476,6 +493,7 @@ function(input, output,session) {
     infoString2 <- paste("Plot3:",paste(ft2$term,sapply(ft2$sumsq, format, digits=2), collapse=" "),
                          paste0("Rsq ", r1, "%", " MSE ", mse))
     cat(paste0(infoString1,"\n", infoString2))
+
   })
 
 
@@ -521,6 +539,12 @@ function(input, output,session) {
 
   })
 
+  observeEvent(input$done, {
+    stopApp(invisible(list(Plot1 = rv$fit0, Plot2=rv$fit1, Plot3=rv$fit2, data=rd$mdata)))
+  })
+  observeEvent(input$cancel, {
+    stopApp(NULL)
+  })
 
 
   # output$mytitle <- renderText({
@@ -530,4 +554,9 @@ function(input, output,session) {
   # })
 
 }
+
+
 }
+
+
+
