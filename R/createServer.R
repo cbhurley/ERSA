@@ -350,8 +350,10 @@ function(input, output,session) {
 
 
   output$barPlotA <- renderPlot({
+
      fixedscales <- input$fixedscales
-     fixedscales <- "diff" %in% input$Res
+     # fixedscales <- "diff" %in% input$Res
+
      if (input$stat == "Adj. SS"){
      p <- plotAnovaStats(rv$fit0, ERtermcols, preds,as.numeric(input$alpha), type="SS")+
      xlab("")+ ylab("")

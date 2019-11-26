@@ -84,11 +84,11 @@ createERUIa <- function(tablesOnly=F){
 #' @param tablesOnly if TRUE, shows Plots 1-3 only.
 #'
 #' @return the UI
-createERUI <- function(tablesOnly=F){
+createERUI <- function(tablesOnly=F, gadget=TRUE){
   topflex <- c(3,3)
   if (tablesOnly) topflex <- c(3,NA)
   miniPage(
-    if (interactive()) gadgetTitleBar("Explore regression models"),
+    if (interactive() & gadget) gadgetTitleBar("Explore regression models"),
     tags$style(type = "text/css",
                "label { font-size: 11px; }"
     ),
