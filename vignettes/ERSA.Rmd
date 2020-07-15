@@ -28,7 +28,7 @@ exploreReg(f,swiss)
 Here is a screen shot of the result:
 
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('swiss.png')
+knitr::include_graphics('swiss1.png')
 ```
 
 ## The summary or drop1 display
@@ -51,6 +51,11 @@ Clicking on this display removes the closest predictor, clicking again adds it
 in. Once a predictor is added or dropped, this change is also reflected in the other
 ERSA displays.
 
+When  FixedScales box near Plot1 is ticked, the axes on Plot1 remain unchanged as predictors
+are added or dropped. Sometimes the extent on the x-axis is not large enough, or is too large,
+in this case untick the FixedScales box and the x-axis will vary to accomodate
+the included predictors.
+
 ## The anova display
 The second panel in the top right shows the results of
 ```{r}
@@ -69,7 +74,8 @@ or double click to move it down.
 
 The lower part of the app has a parallel coordinate plot on the lower right,
 and a control panel on the left.
-The user can choose to show either (i) Variables (ii) Residuals and (iii) Hatvalues.
+The user can choose to show either (i) Variables (ii) Residuals, (iii) Hatvalues
+and (iv) CooksD.
 Each axis is assigned to a variable, using the order from Plot1, Plot2 and Plot3.
 The residuals and hatvalues are obtained by leaving out one predictor at a time, if the
 selected order is Plot1, or by adding predictors in sequence if the order is Plot2 or Plot3.
@@ -138,11 +144,12 @@ a time use
 pcpPlot(swiss, f, type="Residuals")
 ```
 
-In residual and hatvalue plots cases are automatically coloured by the magnitude of full model residuals.
+In residual, hatvalue and CooksD plots cases are automatically coloured by the magnitude of full model residuals.
 Using the option sequential=T gives the residuals adding model terms in sequence,
 as they appear in the supplied fit f.
 
-Swapping "Residuals" by "Hatvalues" shows the fit hat values.
+Swapping "Residuals" with "Hatvalues"  shows the fit hat values,
+similarly "CooksD".
 ```{r fig.width=7, fig.height=4,fig.align='center'}
 pcpPlot(swiss, f, type="Hatvalues", sequential=T)
 ```

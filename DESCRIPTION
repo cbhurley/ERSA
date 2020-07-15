@@ -2,7 +2,7 @@ Package: ERSA
 Type: Package
 Title: Exploratory Regression 'Shiny' App
 Version: 0.1.2
-Date: 2019-6-21
+Date: 2020-7-15
 Author: Catherine B. Hurley
 Maintainer: Catherine B. Hurley <catherine.hurley@mu.ie>
 Description: Constructs a 'shiny' app function with interactive displays for summary and analysis of variance regression tables, and parallel coordinate plots of data and residuals.

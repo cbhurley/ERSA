@@ -77,7 +77,8 @@ plotAnovaStats <- function(fit0, barcols=NULL,preds=NULL, alpha=.05, type="SS",w
 
 plottStats <- function(fit0, barcols=NULL,preds=NULL, alpha=.05, width=.3){
   anFit0 <- anova(fit0)
-  ssadj0 <- broom::tidy(summary(fit0))[-1,]
+  # ssadj0 <- broom::tidy(summary(fit0))[-1,]
+  ssadj0 <- broom::tidy(fit0)[-1,]
 
   df <- anFit0[-nrow(anFit0),]$Df
   if (any(df != 1)){
